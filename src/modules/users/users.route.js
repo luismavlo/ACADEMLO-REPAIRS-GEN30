@@ -1,18 +1,29 @@
-import express from 'express';
-import { createUser, deleteUser, findAllUsers, findOneUser, updateUser } from './users.controller.js';
+import express from "express";
+import {
+  createUser,
+  deleteUser,
+  findAllUsers,
+  findOneUser,
+  updateUser,
+  login,
+} from "./users.controller.js";
+import {
+  protect,
+  protectAccountOwner,
+  validExistUser,
+} from "./user.middleware.js";
 
 export const router = express.Router();
 
-router
-  .route('/')
-  .get(findAllUsers)
-  .post(createUser)
+router.post("/login", login);
+
+router.route("/").get(protect, findAllUsers).post(createUser);
+
+router.use(protect);
+router.use("/:id", validExistUser);
 
 router
-  .route('/:id')
+  .route("/:id")
   .get(findOneUser)
-  .patch(updateUser)
-  .delete(deleteUser);
-
-
-  
+  .patch(protectAccountOwner, updateUser)
+  .delete(protectAccountOwner, deleteUser);
